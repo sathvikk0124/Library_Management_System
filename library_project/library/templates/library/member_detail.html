@@ -1,0 +1,146 @@
+{% extends 'library/base.html' %}
+
+{% block title %}{{ member.name }} - Library Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'member_list' %}">Members</a></li>
+                <li class="breadcrumb-item active">{{ member.name }}</li>
+            </ol>
+        </nav>
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-user"></i> {{ member.name }}</h1>
+            <a href="{% url 'member_edit' member.pk %}" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Edit Member
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Member Information -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-id-card"></i> Member Information</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <td><strong>Name:</strong></td>
+                        <td>{{ member.name }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Member ID:</strong></td>
+                        <td>{{ member.member_id }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Email:</strong></td>
+                        <td>{{ member.email }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Join Date:</strong></td>
+                        <td>{{ member.join_date|date:"M d, Y" }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Borrowing History -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-history"></i> Borrowing History</h5>
+            </div>
+            <div class="card-body">
+                {% if borrowed_books %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Book Title</th>
+                                    <th>Author</th>
+                                    <th>Borrow Date</th>
+                                    <th>Return Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in borrowed_books %}
+                                <tr>
+                                    <td>{{ record.book.title }}</td>
+                                    <td>{{ record.book.author }}</td>
+                                    <td>{{ record.borrow_date|date:"M d, Y" }}</td>
+                                    <td>
+                                        {% if record.return_date %}
+                                            {{ record.return_date|date:"M d, Y" }}
+                                        {% else %}
+                                            <span class="text-muted">Not returned</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if record.is_returned %}
+                                            <span class="badge bg-success">Returned</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">Borrowed</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-book fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No borrowing history</h5>
+                        <p>This member hasn't borrowed any books yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics -->
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <h3>{{ borrowed_books.count }}</h3>
+                <p>Total Borrows</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+                <h3>{{ borrowed_books|length|add:"-1"|add:borrowed_books.count }}</h3>
+                <p>Currently Borrowed</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h3>{% for record in borrowed_books %}{% if record.is_returned %}{{ forloop.counter }}{% endif %}{% empty %}0{% endfor %}</h3>
+                <p>Books Returned</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <h3>{{ member.join_date|timesince|truncatewords:1 }}</h3>
+                <p>Member Since</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

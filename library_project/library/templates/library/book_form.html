@@ -1,0 +1,112 @@
+{% extends 'library/base.html' %}
+
+{% block title %}{{ action }} Book - Library Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'book_list' %}">Books</a></li>
+                <li class="breadcrumb-item active">{{ action }} Book</li>
+            </ol>
+        </nav>
+        
+        <h1><i class="fas fa-book"></i> {{ action }} Book</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5>Book Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">Title *</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                            <div class="text-danger">
+                                {{ form.title.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.author.id_for_label }}" class="form-label">Author *</label>
+                        {{ form.author }}
+                        {% if form.author.errors %}
+                            <div class="text-danger">
+                                {{ form.author.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.isbn.id_for_label }}" class="form-label">ISBN *</label>
+                        {{ form.isbn }}
+                        {% if form.isbn.errors %}
+                            <div class="text-danger">
+                                {{ form.isbn.errors }}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Format: 978-3-16-148410-0</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.publication_date.id_for_label }}" class="form-label">Publication Date *</label>
+                        {{ form.publication_date }}
+                        {% if form.publication_date.errors %}
+                            <div class="text-danger">
+                                {{ form.publication_date.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        {{ form.is_available }}
+                        <label for="{{ form.is_available.id_for_label }}" class="form-check-label">
+                            Available for borrowing
+                        </label>
+                        {% if form.is_available.errors %}
+                            <div class="text-danger">
+                                {{ form.is_available.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'book_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Books
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> {{ action }} Book
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> Instructions</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check text-success"></i> Fill in all required fields marked with *</li>
+                    <li><i class="fas fa-check text-success"></i> ISBN should be in standard format</li>
+                    <li><i class="fas fa-check text-success"></i> Publication date should be in YYYY-MM-DD format</li>
+                    <li><i class="fas fa-check text-success"></i> Uncheck "Available" if book is currently borrowed</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

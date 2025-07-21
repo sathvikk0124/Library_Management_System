@@ -1,0 +1,201 @@
+{% extends 'library/base.html' %}
+
+{% block title %}Borrow/Return Books - Library Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1><i class="fas fa-exchange-alt"></i> Borrow/Return Books</h1>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Borrow Book Section -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-hand-holding"></i> Borrow a Book</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="borrow">
+                    
+                    <div class="mb-3">
+                        <label for="{{ borrow_form.book.id_for_label }}" class="form-label">Select Book *</label>
+                        {{ borrow_form.book }}
+                        {% if borrow_form.book.errors %}
+                            <div class="text-danger">
+                                {{ borrow_form.book.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ borrow_form.member.id_for_label }}" class="form-label">Select Member *</label>
+                        {{ borrow_form.member }}
+                        {% if borrow_form.member.errors %}
+                            <div class="text-danger">
+                                {{ borrow_form.member.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-hand-holding"></i> Borrow Book
+                    </button>
+                </form>
+                
+                {% if not available_books %}
+                    <div class="alert alert-warning mt-3">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        No books are currently available for borrowing.
+                    </div>
+                {% endif %}
+                
+                {% if not members %}
+                    <div class="alert alert-warning mt-3">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        No members are registered. <a href="{% url 'member_create' %}">Add a member</a> first.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Currently Borrowed Books Section -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-warning text-white">
+                <h5><i class="fas fa-clock"></i> Currently Borrowed Books</h5>
+            </div>
+            <div class="card-body">
+                {% if borrowed_books %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Book</th>
+                                    <th>Member</th>
+                                    <th>Borrowed</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in borrowed_books %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ record.book.title }}</strong><br>
+                                        <small class="text-muted">by {{ record.book.author }}</small>
+                                    </td>
+                                    <td>{{ record.member.name }}</td>
+                                    <td>{{ record.borrow_date|date:"M d" }}</td>
+                                    <td>
+                                        <form method="post" style="display: inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="return">
+                                            <input type="hidden" name="borrow_id" value="{{ record.pk }}">
+                                            <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Mark this book as returned?')">
+                                                <i class="fas fa-undo"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                        <h6 class="text-muted">No books currently borrowed</h6>
+                        <p class="small">All books are available in the library.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics -->
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <h3>{{ available_books.count }}</h3>
+                <p>Available Books</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+                <h3>{{ borrowed_books.count }}</h3>
+                <p>Borrowed Books</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h3>{{ members.count }}</h3>
+                <p>Total Members</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <h3>{{ available_books.count|add:borrowed_books.count }}</h3>
+                <p>Total Books</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Links -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-external-link-alt"></i> Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <a href="{% url 'book_create' %}" class="btn btn-outline-primary w-100 mb-2">
+                            <i class="fas fa-plus"></i> Add New Book
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{% url 'member_create' %}" class="btn btn-outline-success w-100 mb-2">
+                            <i class="fas fa-user-plus"></i> Add New Member
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{% url 'book_list' %}" class="btn btn-outline-info w-100 mb-2">
+                            <i class="fas fa-list"></i> View All Books
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{% url 'member_list' %}" class="btn btn-outline-warning w-100 mb-2">
+                            <i class="fas fa-users"></i> View All Members
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-refresh page every 30 seconds to show real-time updates
+    setTimeout(function() {
+        location.reload();
+    }, 30000);
+});
+</script>
+{% endblock %}
